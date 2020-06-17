@@ -5,18 +5,26 @@ if ! [ -x "$(command -v docker-compose)" ]; then
   exit 1
 fi
 
-# put your multi domain here, don't forget make nginx multi domain conf
+# put your multi domain here, separated by space. Don't forget make nginx multi domain conf
 domains=(your-domain1.com your-sub.domain2.org your-multi-sub.domain3.net)
 
 rsa_key_size=4096
 data_path="./data/certbot"
 
-email="" # Adding a valid address is strongly recommended
+email="" # Adding a valid address is strongly recommended, please add your own email !
+staging=1 # Set to 1 if you're testing your setup to avoid hitting request limits, set 0 for production env.
 
-staging=1 # Set to 1 if you're testing your setup to avoid hitting request limits
+echo "List of domains(s) :"
+for domain in ${domains[@]}; do
+  echo " - $domain"
+done
+
+echo
+echo "Your email : $email ..." 
+echo
 
 if [ -d "$data_path" ]; then
-  read -p "Existing data found for $domains. Continue and replace existing certificate? (y/N) " decision
+  read -p "Your data maybe exist for this domain(s). Continue and replace existing certificate? (y/N) " decision
   if [ "$decision" != "Y" ] && [ "$decision" != "y" ]; then
     exit
   fi
@@ -35,7 +43,7 @@ for domain in ${domains[@]}; do
   path="/etc/letsencrypt/live/$domain"
   mkdir -p "$data_path/conf/live/$domain"
 
-  echo "### Creating dummy certificate for $domains ..."
+  echo "### Creating dummy certificate for $domain ..."
   docker-compose run --rm --entrypoint "\
     openssl req -x509 -nodes -newkey rsa:1024 -days 1\
       -keyout '$path/privkey.pem' \
@@ -58,9 +66,9 @@ for domain in ${domains[@]}; do
 done
 
 for domain in ${domains[@]}; do
-  echo "### Generating args / parameters for $domains ..."
-  #Join $domains to -d args
+  echo "### Generating args / parameters for $domain ..."
   domain_args=""
+  #Join $domains to -d args
   domain_args="$domain_args -d $domain"
 
   # Select appropriate email arg
@@ -72,7 +80,7 @@ for domain in ${domains[@]}; do
   # Enable staging mode if needed
   if [ $staging != "0" ]; then staging_arg="--staging"; fi
 
-  echo "### Requesting Let's Encrypt certificate for $domains ..."
+  echo "### Requesting Let's Encrypt certificate for $domain ..."
   docker-compose run --rm --entrypoint " \
     certbot certonly --webroot -w /var/www/certbot \
       $staging_arg \
