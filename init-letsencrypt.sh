@@ -92,5 +92,5 @@ for domain in ${domains[@]}; do
   echo
 done
 
-echo "### Reloading nginx container ..."
+echo "### Reloading nginx service ..."
 docker-compose exec nginx nginx -s reload
