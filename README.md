@@ -1,5 +1,7 @@
 # Boilerplate for nginx with Let’s Encrypt on docker-compose
 
+This is altered version, multi domain support
+
 > This repository is accompanied by a [step-by-step guide on how to
 set up nginx and Let’s Encrypt with Docker](https://medium.com/@pentacent/nginx-and-lets-encrypt-with-docker-in-less-than-5-minutes-b4b8a60d3a71).
 
